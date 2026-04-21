@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wavelength</title>
+
+<style>
+body {
+  margin:0;
+  background:#0f172a;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+/* semi-circle window */
+.semi {
+  width:300px;
+  height:150px;
+  border-top-left-radius:300px;
+  border-top-right-radius:300px;
+  background:white;
+  position:relative;
+  overflow:hidden;
+}
+
+/* rotating disk */
+.disk {
+  width:300px;
+  height:300px;
+  border-radius:50%;
+  position:absolute;
+  top:0;
+  left:0;
+  transform:rotate(0deg);
+}
+
+/* wedge */
+.wedge {
+  position:absolute;
+  width:0;
+  height:0;
+  border-left:40px solid transparent;
+  border-right:40px solid transparent;
+  border-bottom:120px solid red;
+  top:30px;
+  left:110px;
+}
+
+.wedge2 {
+  transform:rotate(180deg);
+}
+
+/* cover */
+.cover {
+  width:300px;
+  height:150px;
+  border-top-left-radius:300px;
+  border-top-right-radius:300px;
+  background:#0f172a;
+  position:absolute;
+  top:0;
+  left:0;
+}
+
+/* pointer */
+.pointer {
+  position:absolute;
+  width:3px;
+  height:140px;
+  background:#E11D48;
+  bottom:0;
+  left:50%;
+  transform-origin:bottom center;
+  transform:rotate(90deg);
+}
+</style>
+</head>
+
+<body>
+
+<div class="semi" id="semi">
+
+  <div class="disk" id="disk">
+    <div class="wedge"></div>
+    <div class="wedge wedge2"></div>
+  </div>
+
+  <div class="cover" id="cover"></div>
+  <div class="pointer" id="pointer"></div>
+
+</div>
+
+<script>
+let disk = document.getElementById("disk");
+let pointer = document.getElementById("pointer");
+let cover = document.getElementById("cover");
+
+let pointerAngle = 90;
+let dragging = false;
+
+// RANDOMIZE DISK
+disk.style.transform = `rotate(${Math.random()*360}deg)`;
+
+// DRAG POINTER
+document.getElementById("semi").addEventListener("mousedown", ()=> dragging = true);
+document.addEventListener("mouseup", ()=> dragging = false);
+
+document.addEventListener("mousemove", (e)=>{
+  if(!dragging) return;
+
+  let rect = document.getElementById("semi").getBoundingClientRect();
+  let x = e.clientX - rect.left - rect.width/2;
+  let y = rect.height - (e.clientY - rect.top);
+
+  let angle = Math.atan2(x, y) * (180/Math.PI);
+  angle = Math.max(-90, Math.min(90, angle));
+
+  pointerAngle = angle + 90;
+  pointer.style.transform = `rotate(${pointerAngle}deg)`;
+});
+
+// TOGGLE COVER (tap to reveal/hide)
+cover.addEventListener("click", ()=>{
+  cover.style.display = cover.style.display === "none" ? "block" : "none";
+});
+</script>
+
+</body>
+</html>
