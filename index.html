@@ -7,123 +7,92 @@
 <style>
 body {
   margin:0;
-  background:#0f172a;
+  background:#A9B3B9;
   display:flex;
   justify-content:center;
   align-items:center;
   height:100vh;
 }
 
-/* semi-circle window */
-.semi {
-  width:300px;
-  height:150px;
-  border-top-left-radius:300px;
-  border-top-right-radius:300px;
-  background:white;
-  position:relative;
-  overflow:hidden;
-}
-
-/* rotating disk */
-.disk {
-  width:300px;
-  height:300px;
-  border-radius:50%;
-  position:absolute;
-  top:0;
-  left:0;
-  transform:rotate(0deg);
-}
-
-/* wedge */
-.wedge {
-  position:absolute;
-  width:0;
-  height:0;
-  border-left:40px solid transparent;
-  border-right:40px solid transparent;
-  border-bottom:120px solid red;
-  top:30px;
-  left:110px;
-}
-
-.wedge2 {
-  transform:rotate(180deg);
-}
-
-/* cover */
-.cover {
-  width:300px;
-  height:150px;
-  border-top-left-radius:300px;
-  border-top-right-radius:300px;
-  background:#0f172a;
-  position:absolute;
-  top:0;
-  left:0;
+svg {
+  width:350px;
 }
 
 /* pointer */
-.pointer {
-  position:absolute;
-  width:3px;
-  height:140px;
-  background:#E11D48;
-  bottom:0;
-  left:50%;
-  transform-origin:bottom center;
-  transform:rotate(90deg);
+#pointer {
+  transform-origin: 175px 175px;
+  cursor: grab;
 }
+
 </style>
 </head>
 
 <body>
 
-<div class="semi" id="semi">
+<svg viewBox="0 0 350 350">
 
-  <div class="disk" id="disk">
-    <div class="wedge"></div>
-    <div class="wedge wedge2"></div>
-  </div>
+  <!-- scalloped outer (fake using stroke) -->
+  <circle cx="175" cy="175" r="165" fill="#EDEDED"/>
 
-  <div class="cover" id="cover"></div>
-  <div class="pointer" id="pointer"></div>
+  <!-- navy ring -->
+  <circle cx="175" cy="175" r="150" fill="none" stroke="#0B1140" stroke-width="20"/>
 
-</div>
+  <!-- white top -->
+  <path d="M25 175 A150 150 0 0 1 325 175 L175 175 Z" fill="#F4F4F4"/>
+
+  <!-- dark bottom -->
+  <path d="M25 175 A150 150 0 0 0 325 175 L175 175 Z" fill="#060D3A"/>
+
+  <!-- WEDGES (left side only) -->
+  <path d="M175 175 L40 150 A150 150 0 0 1 60 120 Z" fill="#F97316"/>
+  <path d="M175 175 L60 120 A150 150 0 0 1 80 100 Z" fill="#60A5FA"/>
+  <path d="M175 175 L80 100 A150 150 0 0 1 105 90 Z" fill="#F97316"/>
+  <path d="M175 175 L105 90 A150 150 0 0 1 130 95 Z" fill="#FBBF24"/>
+
+  <!-- numbers -->
+  <text x="55" y="150" font-size="14" fill="black" transform="rotate(-20 55 150)">3</text>
+  <text x="75" y="120" font-size="14" fill="black" transform="rotate(-35 75 120)">4</text>
+  <text x="95" y="100" font-size="14" fill="black" transform="rotate(-45 95 100)">3</text>
+  <text x="115" y="95" font-size="14" fill="black" transform="rotate(-60 115 95)">2</text>
+
+  <!-- center knob -->
+  <circle cx="175" cy="175" r="30" fill="#D61F2C"/>
+
+  <!-- pointer -->
+  <line id="pointer" x1="175" y1="175" x2="190" y2="70"
+        stroke="#D61F2C" stroke-width="6" stroke-linecap="round"/>
+
+</svg>
 
 <script>
-let disk = document.getElementById("disk");
 let pointer = document.getElementById("pointer");
-let cover = document.getElementById("cover");
-
-let pointerAngle = 90;
+let angle = 20;
 let dragging = false;
 
-// RANDOMIZE DISK
-disk.style.transform = `rotate(${Math.random()*360}deg)`;
+function setAngle(a){
+  pointer.setAttribute("transform", `rotate(${a} 175 175)`);
+}
 
-// DRAG POINTER
-document.getElementById("semi").addEventListener("mousedown", ()=> dragging = true);
+setAngle(angle);
+
+// drag
+document.addEventListener("mousedown", ()=> dragging = true);
 document.addEventListener("mouseup", ()=> dragging = false);
 
 document.addEventListener("mousemove", (e)=>{
   if(!dragging) return;
 
-  let rect = document.getElementById("semi").getBoundingClientRect();
-  let x = e.clientX - rect.left - rect.width/2;
-  let y = rect.height - (e.clientY - rect.top);
+  let rect = document.querySelector("svg").getBoundingClientRect();
+  let cx = rect.left + rect.width/2;
+  let cy = rect.top + rect.height/2;
 
-  let angle = Math.atan2(x, y) * (180/Math.PI);
-  angle = Math.max(-90, Math.min(90, angle));
+  let dx = e.clientX - cx;
+  let dy = e.clientY - cy;
 
-  pointerAngle = angle + 90;
-  pointer.style.transform = `rotate(${pointerAngle}deg)`;
-});
+  let a = Math.atan2(dy, dx) * 180/Math.PI + 90;
+  a = Math.max(0, Math.min(180, a));
 
-// TOGGLE COVER (tap to reveal/hide)
-cover.addEventListener("click", ()=>{
-  cover.style.display = cover.style.display === "none" ? "block" : "none";
+  setAngle(a);
 });
 </script>
 
